@@ -36,9 +36,10 @@
 
   <node pkg="landmark_publisher" type="landmark_node" name="landmark_node" output="screen" required="true">
     <remap from="~/os1_config" to="/os1_node/os1_config"/>
-    <remap from="~/points" to="/os1_cloud_node/points"/>
+    <remap from="~/points" to="points2"/>
 
-    <remap from="/landmark_node/landmark" to="landmark"/>
+    <remap from="/landmark_node/landmark" to="/landmark"/>
+
   </node>
 
   <param name="robot_description"
@@ -52,7 +53,6 @@
           -configuration_directory $(arg carto_conf)/configuration_files
           -configuration_basename os1_16.lua"
         output="screen">
-
   </node>
 
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
@@ -62,5 +62,5 @@
         args="-d $(arg carto_conf)/configuration_files/demo_3d.rviz" />
 
   <node name="playbag" pkg="rosbag" type="play"
-        args="--clock $(arg bag_filename)" />
+        args="--clock $(arg bag_filename) --pause" />
 </launch>

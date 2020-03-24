@@ -196,6 +196,7 @@ int main(int argc, char** argv) {
 
         cartographer_ros_msgs::LandmarkList landmarks;
         landmarks.header = m->header;
+        landmarks.header.frame_id = "os1_lidar";
         vector<cartographer_ros_msgs::LandmarkEntry>  landmarkEntries;
 
 
