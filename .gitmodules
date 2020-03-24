@@ -1,3 +1,0 @@
-[submodule "src/ouster_example"]
-	path = src/ouster_example
-	url = git@github.com:Miro001/ouster_example.git
