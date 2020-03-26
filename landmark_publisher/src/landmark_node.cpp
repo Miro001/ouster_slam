@@ -94,7 +94,7 @@ vector<cv::Point2f> ptCloudIndicesOfLandMarks (const cv::Mat image, const float 
 
             double area = contourArea(contours[i]);
 
-            if (area > 65 && area < 500) {
+            if (area > 75 && area < 300) {
                 double subArea;
                 cv::RotatedRect innerRotRect;
                 subArea = areaSumOfAllChildrenOf(contours, hierarchy, i, &innerRotRect);
@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
             pose.position.x = - landmarkPoint.x;
             pose.position.y = - landmarkPoint.y;
             pose.position.z = - landmarkPoint.z;
-
+            pose.orientation = geometry_msgs::Quaternion();
             ROS_DEBUG("Publishing landmark at {%f %f %f} ",pose.position.x,pose.position.y,pose.position.z);
 
             landmarkEntry.tracking_from_landmark_transform = pose;
