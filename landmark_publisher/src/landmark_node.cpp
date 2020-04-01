@@ -34,6 +34,7 @@
 
 #include <cartographer_ros_msgs/LandmarkEntry.h>
 #include <cartographer_ros_msgs/LandmarkList.h>
+#include <signal.h>
 
 namespace OS1 = ouster::OS1;
 using namespace pcl;
@@ -139,17 +140,23 @@ bool isDefinedPoint(pcl::PointXYZ point) {
     return true;
 }
 
+std::ofstream landmarkLogStream;
+
+void mySigintHandler(int sig)
+{
+    landmarkLogStream.close();
+    ros::shutdown();
+}
 int main(int argc, char** argv) {
     ros::init(argc, argv, "landmark_node");
     ros::NodeHandle nh("~");
 
     auto logLandmarksPath = nh.param("log_landmarks_path", std::string());
 
-    std::ofstream landmarkLogStream;
 
     if ( ! logLandmarksPath.empty()) {
+        landmarkLogStream.open(logLandmarksPath);
     }
-
     boost::uuids::random_generator generator;
 
     ouster_ros::OS1ConfigSrv cfg{};
@@ -169,7 +176,6 @@ int main(int argc, char** argv) {
             nh.advertise<cartographer_ros_msgs::LandmarkList>("landmark", 100);
 
     ouster_ros::OS1::CloudOS1 cloud{};
-    landmarkLogStream.open(logLandmarksPath);
 
     auto cloud_handler = [&](const sensor_msgs::PointCloud2::ConstPtr& m) {
         pcl::fromROSMsg(*m, cloud);
@@ -209,6 +215,7 @@ int main(int argc, char** argv) {
                 pose.orientation = geometry_msgs::Quaternion();
                 landmarkEntry.tracking_from_landmark_transform = pose;
 
+
                 boost::uuids::uuid uuid = generator();
                 landmarkEntry.id = boost::uuids::to_string(uuid);
                 landmarkEntry.rotation_weight = 0;
@@ -218,17 +225,18 @@ int main(int argc, char** argv) {
             }
         }
 
+
         landmarks.landmark = landmarkEntries;
         landmarkListPublisher.publish(landmarks);
-        landmarkLogStream.close();
+        if (landmarkLogStream.is_open()) {
+            landmarkLogStream << landmarks;
+        }
     };
 
     auto pc_sub =
             nh.subscribe<sensor_msgs::PointCloud2>("points", 500, cloud_handler);
+    signal(SIGINT, mySigintHandler);
 
     ros::spin();
-
     return EXIT_SUCCESS;
 }
-
-//TODO clean up

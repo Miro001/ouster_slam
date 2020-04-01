@@ -12,6 +12,7 @@
   <arg name="arg bag_filename" default="false" doc="bag for usage "/>
 
   <arg name="arg carto_conf" default="" doc="FilePath to your cartographer configuration"/>
+  <arg name="arg log_landmarks_path" default="" doc="FilePath to log landmarks"/>
 
   <!-- ================================================================================================ -->
 
@@ -27,6 +28,9 @@
   <!-- ================================================================================================ -->
 
   <node pkg="landmark_publisher" type="landmark_node" name="landmark_node" output="screen" required="true">
+
+    <param name="~/log_landmarks_path" value="$(arg log_landmarks_path)"/>
+
     <remap from="~/os1_config" to="/os1_node/os1_config"/>
     <remap from="~/points" to="/points2"/>
 

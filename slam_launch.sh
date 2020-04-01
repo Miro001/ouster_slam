@@ -11,4 +11,5 @@ roslaunch ouster_slam os_slam.launch \
                              replay:=true \
                              bag_filename:=${BAGPATH}\
                              metadata:=${CONFIGPATH}\
-                             carto_conf:=${CARTOCONF}
+                             carto_conf:=${CARTOCONF}\
+                             log_landmarks_path:='/home/miro/Desktop/log.txt'
