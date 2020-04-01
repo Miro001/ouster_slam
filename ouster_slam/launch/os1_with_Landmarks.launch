@@ -1,0 +1,59 @@
+<launch>
+
+  <arg name="os1_hostname" default="" doc="hostname or IP in dotted decimal form of the sensor"/>
+  <arg name="os1_udp_dest" default="" doc="hostname or IP where the sensor will send data packets"/>
+  <arg name="os1_lidar_port" default="0" doc="port to which the sensor should send lidar data"/>
+  <arg name="os1_imu_port" default="0" doc="port to which the sensor should send imu data"/>
+  <arg name="replay" default="false" doc="do not connect to a sensor; expect /os1_node/{lidar,imu}_packets from replay"/>
+  <arg name="lidar_mode" default="" doc="resolution and rate: either 512x10, 512x20, 1024x10, 1024x20, or 2048x10"/>
+  <arg name="timestamp_mode" default="" doc="method used to timestamp measurements: TIME_FROM_INTERNAL_OSC, TIME_FROM_SYNC_PULSE_IN, TIME_FROM_PTP_1588"/>
+  <arg name="metadata" default="" doc="override default metadata file for replays"/>
+
+  <arg name="viz" default="false" doc="whether to run a simple visualizer"/>
+  <arg name="image" default="false" doc="publish range/intensity/noise image topic"/>
+  <arg name="tf_prefix" default="" doc="namespace for tf transforms"/>
+  <arg name="arg bag_filename" default="" doc="bag for usage "/>
+  <arg name="arg record" default="false" doc="record data"/>
+
+  <!--<arg name="arg log_landmarks_path" default="" doc="FilePath to log positions of landmarks"/> -->
+
+
+  <include file="$(find ouster_ros)/os1.launch">
+    <arg name="os1_hostname"     value="$(arg os1_hostname)"/>
+    <arg name="os1_udp_dest"     value="$(arg os1_udp_dest)"/>
+    <arg name="os1_imu_port"     value="$(arg os1_imu_port)"/>
+    <arg name="os1_lidar_port"   value="$(arg os1_lidar_port)"/>
+    <arg name="replay"           value="$(arg replay)"/>
+    <arg name="lidar_mode"       value="$(arg lidar_mode)"/>
+    <arg name="metadata"         value="$(arg metadata)"/>
+  </include>
+<!--
+  <node pkg="landmark_publisher" type="landmark_node" name="landmark_node" output="screen" required="true"
+        args="-log_landmarks_path $(arg log_landmarks_path)">
+
+    <remap from="~/os1_config" to="/os1_node/os1_config"/>
+    <remap from="~/points" to="points2"/>
+
+    <remap from="/landmark_node/landmark" to="/landmark"/>
+  </node>
+-->
+
+  <node if="$(arg viz)" pkg="ouster_ros" name="viz_node" type="viz_node" output="screen" required="true">
+    <remap from="~/os1_config" to="/os1_node/os1_config"/>
+    <remap from="~/points" to="/os1_cloud_node/points"/>
+  </node>
+
+  <node if="$(arg image)" pkg="ouster_ros" name="img_node" type="img_node" output="screen" required="true">
+    <remap from="~/os1_config" to="/os1_node/os1_config"/>
+    <remap from="~/points" to= "/os1_cloud_node/points"/>
+  </node>
+
+  <node name="playbag" pkg="rosbag" type="play"
+        args="--clock $(arg bag_filename) --pause">
+  </node>
+
+  <node if="$(arg record)" name="recordbag" pkg="rosbag" type="record"
+        args="record /imu /points2 -o ouster_recording_ ">
+  </node>
+
+</launch>

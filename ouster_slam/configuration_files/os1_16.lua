@@ -23,7 +23,7 @@ options = {
   published_frame = "base_link",
   odom_frame = "odom",
   provide_odom_frame = true,
-  publish_frame_projected_to_2d = true,
+  publish_frame_projected_to_2d = false,
   use_odometry = false,
   use_nav_sat = false,
   use_landmarks = true,
@@ -41,10 +41,11 @@ options = {
   imu_sampling_ratio = .1,
   landmarks_sampling_ratio = 1.,
 }
-MAP_BUILDER.use_trajectory_builder_3d = true
 
-TRAJECTORY_BUILDER_2D.min_range = 1. -- minimal distance Point Cloud -> 0.25 ouster specs
-TRAJECTORY_BUILDER_2D.max_range = 50. -- maximal distance Point Cloud ->120 ouster specs
+--MAP_BUILDER.use_trajectory_builder_3d = true
+
+--TRAJECTORY_BUILDER_3D.min_range = 2. -- minimal distance Point Cloud -> 0.25 ouster specs
+--TRAJECTORY_BUILDER_3D.max_range = 50. -- maximal distance Point Cloud ->120 ouster specs
 
 --TRAJECTORY_BUILDER_3D.num_accumulated_range_data = 1
 
@@ -79,12 +80,22 @@ TRAJECTORY_BUILDER_2D.max_range = 50. -- maximal distance Point Cloud ->120 oust
 --MAP_BUILDER.num_background_threads = 12
 
 --Global SLAM
+MAP_BUILDER.use_trajectory_builder_2d = true
 
-POSE_GRAPH.optimize_every_n_nodes = 0
-POSE_GRAPH.constraint_builder.sampling_ratio = 0.03
-POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 100
-POSE_GRAPH.constraint_builder.min_score = 0.8
-POSE_GRAPH.constraint_builder.global_localization_min_score = 0.8
-POSE_GRAPH.optimization_problem.huber_scale = 5e2
+TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
+TRAJECTORY_BUILDER_2D.use_imu_data = true
+TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.linear_search_window = 0.15
+TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.angular_search_window = math.rad(35.)
+TRAJECTORY_BUILDER_2D.min_range = 1.5
+TRAJECTORY_BUILDER_2D.imu_gravity_time_constant = 1
+
+POSE_GRAPH.optimization_problem.huber_scale = 1e2
+
+POSE_GRAPH.optimize_every_n_nodes = 20
+--POSE_GRAPH.constraint_builder.sampling_ratio = 0.03
+--POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 100
+--POSE_GRAPH.constraint_builder.min_score = 0.8
+--POSE_GRAPH.constraint_builder.global_localization_min_score = 0.8
+--POSE_GRAPH.optimization_problem.huber_scale = 5e2
 
 return options

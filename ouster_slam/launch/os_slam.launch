@@ -28,7 +28,7 @@
 
   <node pkg="landmark_publisher" type="landmark_node" name="landmark_node" output="screen" required="true">
     <remap from="~/os1_config" to="/os1_node/os1_config"/>
-    <remap from="~/points" to="points2"/>
+    <remap from="~/points" to="/points2"/>
 
     <remap from="/landmark_node/landmark" to="/landmark"/>
   </node>

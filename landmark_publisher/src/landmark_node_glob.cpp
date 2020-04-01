@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     boost::uuids::random_generator generator;
 
     ouster_ros::OS1ConfigSrv cfg{};
-    auto client = nh.serviceClient<ouster_ros::OS1ConfigSrv>("os1_config");
+    auto client = nh.serviceClient<ouster_ros::OS1ConfigSrv>("~/os1_config");
     client.waitForExistence();
     if (!client.call(cfg)) {
         ROS_ERROR("Calling os1 config service failed");
@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
     };
 
     auto pc_sub =
-            nh.subscribe<sensor_msgs::PointCloud2>("points", 500, cloud_handler);
+            nh.subscribe<sensor_msgs::PointCloud2>("~/points", 500, cloud_handler);
 
     ros::spin();
 
