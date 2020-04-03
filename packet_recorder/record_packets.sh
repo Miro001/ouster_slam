@@ -1,11 +1,12 @@
 #!/bin/bash
 source ../../devel/setup.bash
 
-BAGFILEPATH='/media/miro/DataStore/bags/geo/stvorec_proti_smeru_hr_2.bag' #own path
-METAFILEPATH='/media/miro/DataStore/bags/geo/config.json' #own path
-RECORDFILEPATH='/media/miro/DataStore/bags/geo/' #own path
+BAGFILEPATH='/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/geo/stvorec_proti_smeru_hr_2.bag' #own path
+METAFILEPATH='/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/geo/config.json' #own path
 
-roslaunch ouster_slam os1_packet_record.launch \
+RECORDFILEPATH='/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/debug/';
+
+roslaunch packet_recorder os1_packet_record.launch\
                              udp_hostname:=127.0.0.1\
                              replay:=true \
                              bag_filename:=${BAGFILEPATH}\
