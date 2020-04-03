@@ -29,7 +29,7 @@
   </node>
 
   <node if="$(arg record)" name="record" pkg="rosbag" type="record"
-        args="record /os1_node/imu_packets /os1_node/lidar_packets -o  $(arg record_filepath)os1_packets">
+        args="record -a --split --size 1024 --chunksize=2048  -o  $(arg record_filepath)carto_slam_">
   </node>
 
 </launch>

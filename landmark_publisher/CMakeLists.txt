@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
         geometry_msgs
         tf2_geometry_msgs
         cartographer_ros_msgs
+        visualization_msgs
         pcl_ros
         pcl_conversions
         roscpp
@@ -46,7 +47,7 @@ catkin_package(
         LIBRARIES ouster_ros
         CATKIN_DEPENDS
         roscpp message_runtime pcl_ros
-        std_msgs sensor_msgs geometry_msgs cartographer_ros_msgs unique_id uuid_msgs
+        std_msgs sensor_msgs geometry_msgs visualization_msgs cartographer_ros_msgs unique_id uuid_msgs
         ouster_client ouster_viz ouster_ros
 )
 

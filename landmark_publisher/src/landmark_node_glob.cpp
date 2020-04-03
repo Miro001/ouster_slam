@@ -27,6 +27,9 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
+
 #include <unique_id/unique_id.h>
 #include <boost/uuid/random_generator.hpp>
 
@@ -140,95 +143,23 @@ bool isDefinedPoint(pcl::PointXYZ point) {
 }
 
 int main(int argc, char** argv) {
-    ros::init(argc, argv, "landmark_node");
+    ros::init(argc, argv, "control_pts_node");
     ros::NodeHandle nh("~");
-
-    auto logLandmarksPath = nh.param("log_landmarks_path", std::string());
-
-    std::ofstream landmarkLogStream;
-
-    if ( ! logLandmarksPath.empty()) {
-    }
 
     boost::uuids::random_generator generator;
 
-    ouster_ros::OS1ConfigSrv cfg{};
-    auto client = nh.serviceClient<ouster_ros::OS1ConfigSrv>("~/os1_config");
-    client.waitForExistence();
-    if (!client.call(cfg)) {
-        ROS_ERROR("Calling os1 config service failed");
-        return EXIT_FAILURE;
-    }
-
-    auto H = OS1::pixels_per_column;
-    auto W = OS1::n_cols_of_lidar_mode(
-            OS1::lidar_mode_of_string(cfg.response.lidar_mode));
-
-    const auto px_offset = ouster::OS1::get_px_offset(W);
     ros::Publisher landmarkListPublisher =
-            nh.advertise<cartographer_ros_msgs::LandmarkList>("landmark", 100);
-
-    ouster_ros::OS1::CloudOS1 cloud{};
-    landmarkLogStream.open(logLandmarksPath);
-
-    auto cloud_handler = [&](const sensor_msgs::PointCloud2::ConstPtr& m) {
-        pcl::fromROSMsg(*m, cloud);
-
-        cartographer_ros_msgs::LandmarkList landmarks;
-        landmarks.header = m->header;
-        landmarks.header.frame_id = "os1_lidar";
-        std::vector<cartographer_ros_msgs::LandmarkEntry>  landmarkEntries;
+            nh.advertise<cartographer_ros_msgs::LandmarkList>("landmark2", 100);
 
 
-        cv::Mat intensity_image = cv::Mat(H, W, CV_32F);
-        cv::Mat index_image = cv::Mat(H, W, CV_32SC1);
-
-        for (int u = 0; u < H; u++) {
-            for (int v = 0; v < W; v++) {
-                const size_t vv = (v + px_offset[u]) % W;
-                const size_t index = vv * H + u;
-                const auto& pt = cloud[index];
-                index_image.at<int>(u, v) = (int)  index;
-                intensity_image.at<float>(u, v) = pt.intensity;
-
-            }
-        }
-
-        std::vector<cv::Point2f> intensityImageIndices;
-        intensityImageIndices = ptCloudIndicesOfLandMarks(intensity_image,0.5271f);
-
-        for (size_t j = 0; j < intensityImageIndices.size(); ++j) {
-            pcl::PointXYZ landmarkPoint;
-            landmarkPoint = pointAtIndex(intensityImageIndices[j],index_image,cloud);
-            if (isDefinedPoint(landmarkPoint)) {
-                cartographer_ros_msgs::LandmarkEntry landmarkEntry;
-                geometry_msgs::Pose pose;
-                pose.position.x = -landmarkPoint.x;
-                pose.position.y = -landmarkPoint.y;
-                pose.position.z = -landmarkPoint.z;
-                pose.orientation = geometry_msgs::Quaternion();
-                landmarkEntry.tracking_from_landmark_transform = pose;
-
-                boost::uuids::uuid uuid = generator();
-                landmarkEntry.id = boost::uuids::to_string(uuid);
-                landmarkEntry.rotation_weight = 0;
-                landmarkEntry.translation_weight = 0;
-
-                landmarkEntries.push_back(landmarkEntry);
-            }
-        }
-
-        landmarks.landmark = landmarkEntries;
-        landmarkListPublisher.publish(landmarks);
-        landmarkLogStream.close();
+    auto markerArrayHandler = [&](const visualization_msgs::MarkerArray &markerArray) {
+        cout << markerArray;
     };
 
     auto pc_sub =
-            nh.subscribe<sensor_msgs::PointCloud2>("~/points", 500, cloud_handler);
+            nh.subscribe<visualization_msgs::MarkerArray &markerArray>("~/landmark_poses_list", 100, markerArrayHandler);
 
     ros::spin();
 
     return EXIT_SUCCESS;
 }
-
-//TODO clean up

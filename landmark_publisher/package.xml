@@ -28,13 +28,13 @@
   <build_depend>pcl_conversions</build_depend>
   <build_depend>tf2</build_depend>
   <build_depend>tf2_ros</build_depend>
+  <build_depend>unique_id</build_depend>
+  <build_depend>uuid_msgs</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>vision_opencv</build_depend>
   <build_depend>ouster_client</build_depend>
   <build_depend>ouster_viz</build_depend>
   <build_depend>ouster_ros</build_depend>
-  <build_depend>unique_id</build_depend>
-  <build_depend>uuid_msgs</build_depend>
-
-  <build_depend>vision_opencv</build_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>message_runtime</exec_depend>
@@ -50,6 +50,7 @@
   <exec_depend>unique_id</exec_depend>
   <exec_depend>uuid_msgs</exec_depend>
   <exec_depend>vision_opencv</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
 
   <export>
     <!-- Other tools can request additional information be placed here -->

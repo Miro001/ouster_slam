@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../devel/setup.bash
+source ../../devel/setup.bash
 
 BAGFILEPATH='/media/miro/DataStore/bags/geo/stvorec_proti_smeru_hr_2.bag' #own path
 METAFILEPATH='/media/miro/DataStore/bags/geo/config.json' #own path
