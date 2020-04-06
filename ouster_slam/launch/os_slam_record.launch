@@ -61,7 +61,7 @@
         args="--clock $(arg bag_filename)" />
 
   <node if="$(arg record)" name="record" pkg="rosbag" type="record"
-        args="record -a --split --size 2048 --chunksize=2048  -o  $(arg record_filepath)carto_slam_">
+        args="record -a --split --size 2048 --chunksize=2048  -o  $(arg record_filepath)all_slam">
   </node>
 
 </launch>

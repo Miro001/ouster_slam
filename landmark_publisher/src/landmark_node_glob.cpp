@@ -153,11 +153,11 @@ int main(int argc, char** argv) {
 
 
     auto markerArrayHandler = [&](const visualization_msgs::MarkerArray &markerArray) {
-        cout << markerArray;
+        std::cout << markerArray;
     };
 
     auto pc_sub =
-            nh.subscribe<visualization_msgs::MarkerArray &markerArray>("~/landmark_poses_list", 100, markerArrayHandler);
+            nh.subscribe<visualization_msgs::MarkerArray>("~/landmark_poses_list", 100, markerArrayHandler);
 
     ros::spin();
 

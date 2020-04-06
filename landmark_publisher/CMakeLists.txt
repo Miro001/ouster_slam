@@ -53,6 +53,10 @@ catkin_package(
 
 add_executable(landmark_node  src/landmark_node.cpp)
 target_link_libraries(landmark_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+add_executable(landmark_node_glob  src/landmark_node_glob.cpp)
+target_link_libraries(landmark_node_glob ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
 #add_dependencies(landmark_node ${PROJECT_NAME}_gencpp)
 
 ## Compile as C++11, supported in ROS Kinetic and newer

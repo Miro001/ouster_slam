@@ -91,7 +91,7 @@ TRAJECTORY_BUILDER_2D.imu_gravity_time_constant = 1
 
 POSE_GRAPH.optimization_problem.huber_scale = 1e2
 
-POSE_GRAPH.optimize_every_n_nodes = 20
+POSE_GRAPH.optimize_every_n_nodes = 40
 --POSE_GRAPH.constraint_builder.sampling_ratio = 0.03
 --POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 100
 --POSE_GRAPH.constraint_builder.min_score = 0.8
