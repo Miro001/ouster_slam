@@ -1,18 +1,21 @@
 #!/bin/bash
 source ../../devel/setup.bash
+base_path="/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/";
 
-BAGPATH='/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/geo/stvorec_proti_smeru_hr_2.bag' #own path
-CONFIGPATH='/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/geo/config.json' #own path
+bag_filenames="${base_path}geo_long/carto_slam_2020-04-07-10-17-45_0.bag /mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/geo_long/carto_slam_2020-04-07-10-20-13_1.bag /mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/geo_long/carto_slam_2020-04-07-10-22-26_2.bag"
+config_path="${base_path}geo_long/os1-991937000688.local.json" #own path
+record_filepath="${base_path}geo_long/";
 
-CARTOCONF='/home/miro/Documents/ros/oslam_ws/src/ouster_slam/' #own path
 
-RECORDFILEPATH='/mnt/b6ef98c1-c7b0-4b69-87d0-2165d664c748/bags/debug/';
+#bag_filenames="${base_path}map_test/stvorec_proti_smeru_hr.bag"
+#config_path="${base_path}map_test/config.json"   #own path
+#record_filepath="${base_path}map_test/";
 
 roslaunch ouster_slam os_slam_record.launch \
                              udp_hostname:=127.0.0.1 \
                              replay:=true \
-                             bag_filename:=${BAGPATH}\
-                             metadata:=${CONFIGPATH}\
-                             carto_conf:=${CARTOCONF}\
+                             metadata:=${config_path}\
+                             bag_filename:="${bag_filenames}"\
+                             landmarks:=false\
                              record:=true\
-                             record_filepath:=${RECORDFILEPATH}
+                             record_filepath:=${record_filepath}

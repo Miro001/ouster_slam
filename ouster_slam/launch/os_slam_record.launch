@@ -1,5 +1,4 @@
 <launch>
-  <param name="/use_sim_time" value="true" />
 
   <arg name="os1_hostname" default="" doc="hostname or IP in dotted decimal form of the sensor"/>
   <arg name="os1_udp_dest" default="" doc="hostname or IP where the sensor will send data packets"/>
@@ -10,14 +9,14 @@
   <arg name="metadata" default="" doc="override default metadata file for replays"/>
 
   <arg name="arg bag_filename" default="false" doc="bag for usage "/>
-
-  <arg name="arg carto_conf" default="" doc="FilePath to your cartographer configuration"/>
+  <arg name="arg landmarks" default="false" doc=""/>
 
   <arg name="arg record" default="false" doc="record data"/>
-  <arg name="arg record_filepath" default="~" doc="file path for the bag to record data"/>
+  <arg name="arg record_filepath" default="" doc="file path for the bag to record data"/>
+
   <!-- ================================================================================================ -->
 
-  <include file="$(find ouster_slam)/launch/ouster.launch">
+  <include file="$(find ouster_slam)/launch/os_slam.launch">
     <arg name="os1_hostname"     value="$(arg os1_hostname)"/>
     <arg name="os1_udp_dest"     value="$(arg os1_udp_dest)"/>
     <arg name="os1_imu_port"     value="$(arg os1_imu_port)"/>
@@ -25,43 +24,15 @@
     <arg name="replay"           value="$(arg replay)"/>
     <arg name="lidar_mode"       value="$(arg lidar_mode)"/>
     <arg name="metadata"         value="$(arg metadata)"/>
+
+    <arg name="landmarks"        value="$(arg landmarks)"/>
+    <arg name="bag_filename"     value="$(arg bag_filename)"/>
   </include>
-  <!-- ================================================================================================ -->
-
-  <node pkg="landmark_publisher" type="landmark_node" name="landmark_node" output="screen" required="true">
-
-    <remap from="~/os1_config" to="/os1_node/os1_config"/>
-    <remap from="~/points" to="/points2"/>
-
-    <remap from="/landmark_node/landmark" to="/landmark"/>
-  </node>
-  <!-- ================================================================================================ -->
-
-  <param name="robot_description"
-         textfile="$(arg carto_conf)/urdf/os_sensor.urdf"/>
-
-  <node name="robot_state_publisher" pkg="robot_state_publisher"
-        type="robot_state_publisher" />
-
-  <node name="cartographer_node" pkg="cartographer_ros"
-        type="cartographer_node" args="
-          -configuration_directory $(arg carto_conf)/configuration_files
-          -configuration_basename os1_16.lua"
-        output="screen">
-  </node>
-
-  <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
-        type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
-
-  <node name="rviz" pkg="rviz" type="rviz" required="true"
-        args="-d $(arg carto_conf)/configuration_files/demo_3d.rviz" />
 
   <!-- ================================================================================================ -->
-  <node name="playbag" pkg="rosbag" type="play"
-        args="--clock $(arg bag_filename)" />
 
   <node if="$(arg record)" name="record" pkg="rosbag" type="record"
-        args="record -a --split --size 2048 --chunksize=2048  -o  $(arg record_filepath)all_slam">
+        args="record /imu /points2 --split --size 50000 --chunksize=2048 -O $(arg record_filepath)map_gen.bag">
   </node>
 
 </launch>

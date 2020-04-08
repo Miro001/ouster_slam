@@ -3,7 +3,6 @@
 
     <arg name="arg bag_filename" default="false" doc="bag for usage "/>
 
-
     <node name="playbag" pkg="rosbag" type="play" output="screen"
           args="--clock $(arg bag_filename) --pause" />
 
