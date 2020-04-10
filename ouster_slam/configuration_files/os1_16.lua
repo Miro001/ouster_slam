@@ -23,10 +23,10 @@ options = {
   published_frame = "base_link",
   odom_frame = "odom",
   provide_odom_frame = true,
-  publish_frame_projected_to_2d = true,
+  publish_frame_projected_to_2d = false,
   use_odometry = false,
   use_nav_sat = false,
-  use_landmarks = true,
+  use_landmarks = false,
   num_laser_scans = 0,
   num_multi_echo_laser_scans = 0,
   num_subdivisions_per_laser_scan = 1,
@@ -44,17 +44,15 @@ options = {
 
 MAP_BUILDER.use_trajectory_builder_3d = true
 TRAJECTORY_BUILDER_3D.use_online_correlative_scan_matching = true
-
-TRAJECTORY_BUILDER_3D.imu_gravity_time_constant = .1
-TRAJECTORY_BUILDER_3D.num_accumulated_range_data = 1
-
-TRAJECTORY_BUILDER_3D.min_range = 1.5 -- minimal distance Point Cloud -> 0.25 ouster specs
-TRAJECTORY_BUILDER_3D.max_range = 10. -- maximal distance Point Cloud ->120 ouster specs
-
 --TRAJECTORY_BUILDER_3D.num_accumulated_range_data = 1
 
+--TRAJECTORY_BUILDER_3D.imu_gravity_time_constant = .1
+
+TRAJECTORY_BUILDER_3D.min_range = 1. -- minimal distance Point Cloud -> 0.25 ouster specs
+--TRAJECTORY_BUILDER_3D.max_range = 10. -- maximal distance Point Cloud ->120 ouster specs
+
 --Filter the Point Cloud
---TRAJECTORY_BUILDER_3D.voxel_filter_size = .05
+TRAJECTORY_BUILDER_3D.voxel_filter_size = .05
 
 --TRAJECTORY_BUILDER_3D.adaptive_voxel_filter.max_length = 2.
 --TRAJECTORY_BUILDER_3D.adaptive_voxel_filter.min_num_points = 100.
@@ -90,7 +88,7 @@ TRAJECTORY_BUILDER_3D.max_range = 10. -- maximal distance Point Cloud ->120 oust
 
 --POSE_GRAPH.optimization_problem.huber_scale = 1e2
 
-POSE_GRAPH.optimize_every_n_nodes = 40
+POSE_GRAPH.optimize_every_n_nodes = 20
 --POSE_GRAPH.constraint_builder.sampling_ratio = 0.03
 --POSE_GRAPH.optimization_problem.ceres_solver_options.max_num_iterations = 100
 --POSE_GRAPH.constraint_builder.min_score = 0.8
