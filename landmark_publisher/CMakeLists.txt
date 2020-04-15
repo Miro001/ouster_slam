@@ -9,6 +9,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(jsoncpp REQUIRED jsoncpp)
 find_package(OpenCV)
+find_package(PCL REQUIRED)
+
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 find_package(catkin REQUIRED COMPONENTS
         message_generation
@@ -28,7 +33,6 @@ find_package(catkin REQUIRED COMPONENTS
         tf2_ros
         unique_id
         uuid_msgs
-
         )
 
 #add_message_files(FILES PacketMsg.msg)
@@ -36,14 +40,13 @@ find_package(catkin REQUIRED COMPONENTS
 #generate_messages(DEPENDENCIES std_msgs sensor_msgs geometry_msgs)
 
 include_directories(
-#        include
+        #include
         ${catkin_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
-
 )
 
 catkin_package(
-#        INCLUDE_DIRS include
+       # INCLUDE_DIRS include
         LIBRARIES ouster_ros
         CATKIN_DEPENDS
         roscpp message_runtime pcl_ros
@@ -51,11 +54,12 @@ catkin_package(
         ouster_client ouster_viz ouster_ros
 )
 
+
 add_executable(landmark_node  src/landmark_node.cpp)
-target_link_libraries(landmark_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(landmark_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(landmark_node_glob  src/landmark_node_glob.cpp)
-target_link_libraries(landmark_node_glob ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(landmark_node_glob ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${PCL_LIBRARIES})
 
 #add_dependencies(landmark_node ${PROJECT_NAME}_gencpp)
 

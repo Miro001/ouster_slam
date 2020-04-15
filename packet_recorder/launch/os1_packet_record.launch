@@ -24,6 +24,18 @@
     <param name="~/metadata" value="$(arg metadata)"/>
   </node>
 
+  <node pkg="ouster_ros" type="os1_cloud_node" name="os1_cloud_node" output="screen" required="true">
+    <remap from="~/os1_config" to="/os1_node/os1_config"/>
+    <remap from="~/lidar_packets" to="/os1_node/lidar_packets"/>
+    <remap from="~/imu_packets" to="/os1_node/imu_packets"/>
+    <param name="~/tf_prefix" value="$(arg tf_prefix)"/>
+  </node>
+
+  <node if="$(arg viz)" pkg="ouster_ros" name="viz_node" type="viz_node" output="screen" required="true">
+    <remap from="~/os1_config" to="/os1_node/os1_config"/>
+    <remap from="~/points" to="/os1_cloud_node/points"/>
+  </node>
+
   <node if="$(arg replay)" name="playbag" pkg="rosbag" type="play"
         args="--clock $(arg bag_filename)">
   </node>

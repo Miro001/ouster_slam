@@ -10,5 +10,4 @@ roslaunch ouster_slam os_slam.launch \
                              udp_hostname:=127.0.0.1 \
                              replay:=true \
                              bag_filename:="${bag_filenames}"\
-                             metadata:=${config_path}\
-                             landmarks:=true
+                             metadata:=${config_path}

@@ -9,7 +9,6 @@
   <arg name="metadata" default="" doc="override default metadata file for replays"/>
 
   <arg name="arg bag_filename" default="false" doc="bag for usage "/>
-  <arg name="arg landmarks" default="false" doc=""/>
 
   <arg name="arg record" default="false" doc="record data"/>
   <arg name="arg record_filepath" default="" doc="file path for the bag to record data"/>
@@ -25,7 +24,6 @@
     <arg name="lidar_mode"       value="$(arg lidar_mode)"/>
     <arg name="metadata"         value="$(arg metadata)"/>
 
-    <arg name="landmarks"        value="$(arg landmarks)"/>
     <arg name="bag_filename"     value="$(arg bag_filename)"/>
   </include>
 

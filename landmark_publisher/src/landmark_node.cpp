@@ -17,6 +17,8 @@
 #include <pcl/conversions.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/sample_consensus/sac_model_circle3d.h>
+#include <pcl/sample_consensus/ransac.h>
 #include <pcl_ros/point_cloud.h>
 
 #include <ouster/os1.h>
@@ -37,7 +39,6 @@
 #include <signal.h>
 
 namespace OS1 = ouster::OS1;
-using namespace pcl;
 using namespace Eigen;
 
 double areaSumOfAllChildrenOf(const std::vector<std::vector<cv::Point>> contours,const std::vector<cv::Vec4i> hierarchy, int i, cv::RotatedRect *rotRect) {
@@ -46,19 +47,26 @@ double areaSumOfAllChildrenOf(const std::vector<std::vector<cv::Point>> contours
 
     cv::Vec4i currentChild = hierarchy[idx];
 
-    while (currentChild[2] != -1) {
+    if (currentChild[2] != -1) {
         idx = currentChild[2];
         currentChild = hierarchy[idx];
 
         sumOfHoles = sumOfHoles + contourArea(contours[idx]);
-        if (contours[idx].size() > 5 && rotRect->size.width==0) {
+        if (contours[idx].size() > 5) {
             *rotRect = fitEllipse(contours[idx]);
         }
     }
 
     return sumOfHoles;
 }
-std::vector<cv::Point2f> ptCloudIndicesOfLandMarks (const cv::Mat image, const float binaryThreshhold) {
+
+pcl::PointXYZ pointAtIndex(const cv::Point2f coords,const cv::Mat indexImage,const ouster_ros::OS1::CloudOS1 ptCloud) {
+    size_t index = indexImage.at<int>((int)round(coords.y),(int)round(coords.x)); //due to rotation in prev func
+    pcl::PointXYZ point(ptCloud.points[index].x,ptCloud.points[index].y,ptCloud.points[index].z);
+    return point;
+}
+
+std::vector<cv::Point2f> ptCloudIndicesOfLandMarks (const cv::Mat image, const float binaryThreshhold, const cv::Mat indexImage, const ouster_ros::OS1::CloudOS1 ptCloud) {
     std::vector<cv::Point2f> indices;
 
     double min_im, max_im;
@@ -71,13 +79,14 @@ std::vector<cv::Point2f> ptCloudIndicesOfLandMarks (const cv::Mat image, const f
     } else {
         im_norm = (im_norm - min_im) / (max_im - min_im);
 
-        cv::Mat threshIm;
 
-        threshIm = image > binaryThreshhold;
+        cv::Mat threshIm;
+        threshIm = image > .5171f;
+        cv::Mat drawing(threshIm);
 
         cv::Mat dst = cv::Mat::zeros(64, 2048, CV_8UC3);
         rotate(im_norm, im_norm, cv::ROTATE_90_CLOCKWISE);
-        cv::Mat drawing(threshIm);
+        //TODO is everything kosher
         cvtColor(drawing, drawing, CV_GRAY2RGB);
 
         std::vector<std::vector<cv::Point> > contours;
@@ -90,18 +99,34 @@ std::vector<cv::Point2f> ptCloudIndicesOfLandMarks (const cv::Mat image, const f
         std::vector<int> areaIdx;
 
         findContours(threshIm, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-
+        pcl::PointCloud<pcl::PointXYZ>::Ptr contourPtCloud (new pcl::PointCloud<pcl::PointXYZ> ());
         int idx = 0;
         for (size_t i = 0; i < contours.size(); i++) {
 
             double area = contourArea(contours[i]);
-            if (area > 85 && area < 600) {
+            if (area > 25 && area < 600  && contours[i].size() > 4) {     //to fit ellipse you need 6 points
                 double subArea;
 
                 cv::RotatedRect innerRotRect;
                 subArea = areaSumOfAllChildrenOf(contours, hierarchy, i, &innerRotRect);
 
-                if (subArea > 0) {
+                for (size_t x = 0; x < contours[i].size(); x++) {
+                    pcl::PointXYZ contourPoint;
+                    contourPoint = pointAtIndex(contours[i][x],indexImage,ptCloud);
+                    contourPtCloud->push_back(contourPoint);
+
+                }
+                pcl::SampleConsensusModelCircle3D<pcl::PointXYZ>::Ptr
+                        modelCircle3D(new pcl::SampleConsensusModelCircle3D<pcl::PointXYZ> (contourPtCloud));
+
+                pcl::RandomSampleConsensus<pcl::PointXYZ> ransac (modelCircle3D);
+                ransac.setDistanceThreshold (.01);
+                ransac.computeModel();
+                float circle_radius = ransac.model_coefficients_[3];
+                contourPtCloud->clear();
+
+
+                if (subArea > 5 && circle_radius >0.07 && circle_radius <0.08) {
                     innerEllipseRects.push_back(innerRotRect);
                     std::vector<cv::Point> polygon;
                     cv::Rect rect;
@@ -127,11 +152,6 @@ std::vector<cv::Point2f> ptCloudIndicesOfLandMarks (const cv::Mat image, const f
     return indices;
 }
 
-pcl::PointXYZ pointAtIndex(const cv::Point2f coords,const cv::Mat indexImage,const ouster_ros::OS1::CloudOS1 ptCloud) {
-    size_t index = indexImage.at<int>((int)round(coords.y),(int)round(coords.x));
-    pcl::PointXYZ point(ptCloud.points[index].x,ptCloud.points[index].y,ptCloud.points[index].z);
-    return point;
-}
 
 bool isDefinedPoint(pcl::PointXYZ point) {
     if (point.x == 0 && point.y == 0 && point.z == 0) {
@@ -188,7 +208,7 @@ int main(int argc, char** argv) {
         }
 
         std::vector<cv::Point2f> intensityImageIndices;
-        intensityImageIndices = ptCloudIndicesOfLandMarks(intensity_image,0.5271f);
+        intensityImageIndices = ptCloudIndicesOfLandMarks(intensity_image,0.5271f,index_image,cloud);
 
         for (size_t j = 0; j < intensityImageIndices.size(); ++j) {
             pcl::PointXYZ landmarkPoint;
@@ -199,7 +219,12 @@ int main(int argc, char** argv) {
                 pose.position.x = -landmarkPoint.x;
                 pose.position.y = -landmarkPoint.y;
                 pose.position.z = -landmarkPoint.z;
-                pose.orientation = geometry_msgs::Quaternion();
+                geometry_msgs::Quaternion quaternion;
+                quaternion.x =0;
+                quaternion.y =0;
+                quaternion.z =0;
+                quaternion.w =1;
+                pose.orientation = quaternion;
                 landmarkEntry.tracking_from_landmark_transform = pose;
 
 

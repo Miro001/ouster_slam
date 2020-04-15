@@ -35,6 +35,7 @@
   <build_depend>ouster_client</build_depend>
   <build_depend>ouster_viz</build_depend>
   <build_depend>ouster_ros</build_depend>
+  <build_depend>libpcl-all-dev</build_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>message_runtime</exec_depend>
@@ -51,6 +52,7 @@
   <exec_depend>uuid_msgs</exec_depend>
   <exec_depend>vision_opencv</exec_depend>
   <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>libpcl-all</exec_depend>
 
   <export>
     <!-- Other tools can request additional information be placed here -->
